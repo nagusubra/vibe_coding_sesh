@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; connect-src https://api.perplexity.ai;">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Content Value AI Rater</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+  <div class="title">Brainrot Radar</div>
+      <button id="resetKey" class="link">Change API Key</button>
+    </header>
+
+    <section id="setup" class="card" style="display:none;">
+      <div class="h">First-time setup</div>
+      <label for="apiKey" class="muted">Perplexity API Key</label>
+      <input id="apiKey" type="password" placeholder="pplx-..." />
+      <button id="saveKey" class="btn">Save & Analyze</button>
+      <div id="keyHelp" class="help muted">Your key is stored locally via chrome.storage.</div>
+      <div id="keyStatus" class="status muted"></div>
+    </section>
+
+    <section id="verdictCard" class="card" style="display:none;">
+      <div class="h">AI Verdict</div>
+      <div id="status" class="status">Analyzing…</div>
+      <div id="verdict" class="verdict"></div>
+      <pre id="reason" class="reason"></pre>
+    </section>
+
+    <section id="linksCard" class="card" style="display:none;">
+      <div class="h" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <span>Top Links Scan</span>
+        <button id="analyzeLinks" class="btn small">Analyze Links</button>
+      </div>
+      <div id="linksStatus" class="status muted">Idle</div>
+      <div id="linksResults" class="links"></div>
+    </section>
+
+    <footer class="footer muted">
+  Brainrot Radar v1.0 • Perplexity Sonar
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

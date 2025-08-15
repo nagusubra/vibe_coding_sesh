@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Brainrot Radar",
+  "version": "1.0.0",
+  "description": "Instant AI verdict (valuable vs brainrot) for pages & outbound links using Perplexity Sonar.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://api.perplexity.ai/*",
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Brainrot Radar"
+  }
+}
