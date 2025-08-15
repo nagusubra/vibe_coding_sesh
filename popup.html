@@ -28,14 +28,26 @@
   <div id="bigEmoji" class="bigEmoji" aria-hidden="true" style="display:none;">🔎</div>
       <div id="status" class="status">Analyzing…</div>
       <div id="verdict" class="verdict"></div>
+  <div id="timeSpent" class="muted" style="font-size:11px;margin-top:4px;">Time on this page: --:--</div>
       <pre id="reason" class="reason"></pre>
       <div class="spectrum" id="spectrum" aria-hidden="true">
         <div class="pointer" id="spectrumPointer" aria-label="Verdict spectrum pointer"></div>
       </div>
-      <div class="spectrumLabels">
-        <span>💤 Brainrot</span>
-        <span>🤔 Uncertain</span>
-        <span>💡 Valuable</span>
+      <div class="spectrumStages" id="spectrumStages">
+        <span data-pos="0.05">� brainrot</span>
+        <span data-pos="0.18">📉 doomscroll</span>
+        <span data-pos="0.32">😐 meh</span>
+        <span data-pos="0.50">🫥 mid</span>
+        <span data-pos="0.66">👌 decent</span>
+        <span data-pos="0.82">💡 useful</span>
+        <span data-pos="0.95">🚀 peak</span>
+      </div>
+      <div id="verdictGif" class="verdictGif" style="display:none;">
+        <img id="gifImage" src="" alt="Verdict GIF" style="width:100%;height:80px;object-fit:cover;border-radius:8px;">
+      </div>
+      <div id="learningPrompt" class="learningPrompt" style="display:none;">
+        <div class="h" style="font-size:12px;margin-bottom:6px;">🧠 Level up your brain instead!</div>
+        <div id="learningLinks" class="learningLinks"></div>
       </div>
     </section>
 
@@ -50,7 +62,21 @@
 
     <footer class="footer muted">
   Brainrot Radar v1.0 • Perplexity Sonar
+      <div style="margin-top:6px;">
+        <button id="statsBtn" class="link smallLink" type="button">stats for nerds</button>
+      </div>
     </footer>
+    <section id="statsPanel" class="card statsPanel" style="display:none;max-height:200px;overflow:auto;">
+      <div class="h" style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
+        <span>Debug Data</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button id="maxStats" class="link" type="button" title="Expand">maximize</button>
+          <button id="closeStats" class="link" type="button">close</button>
+        </div>
+      </div>
+      <div class="muted" style="font-size:11px;margin-bottom:6px;">Raw payload & model reply (truncated). No API key shown.</div>
+      <pre id="statsContent" style="white-space:pre-wrap;font-size:11px;line-height:1.3;background:#0f1736;border:1px dashed #2a3b78;padding:8px;border-radius:8px;max-height:120px;overflow:auto;"></pre>
+    </section>
   </div>
   <script src="popup.js"></script>
 </body>

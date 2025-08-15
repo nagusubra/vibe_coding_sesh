@@ -5,6 +5,7 @@ html,body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-se
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .title{font-weight:700}
 .link{background:transparent;border:0;color:var(--muted);cursor:pointer;text-decoration:underline}
+.smallLink{font-size:11px}
 .card{background:var(--card);border:1px solid #223059;border-radius:12px;padding:12px;margin-top:8px}
 .h{font-weight:700;margin-bottom:8px}
 .muted{color:var(--muted)}
@@ -18,7 +19,20 @@ input{margin-top:6px;border-radius:10px;border:1px solid #2a3b78;padding:10px;wi
 .reason{margin-top:8px;background:#0f1736;border:1px dashed #2a3b78;border-radius:10px;padding:8px;white-space:pre-wrap;max-height:160px;overflow:auto}
 .spectrum{margin-top:10px;position:relative;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--bad),#ffb347,#f4d35e,#9fdc7b,var(--ok));box-shadow:0 0 0 1px #223059,inset 0 0 4px rgba(0,0,0,.4)}
 .pointer{position:absolute;top:-5px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid #fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));transition:left .35s cubic-bezier(.4,.8,.2,1)}
-.spectrumLabels{margin-top:6px;display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.spectrumLabels{display:none}
+.spectrumStages{margin-top:6px;display:flex;justify-content:space-between;gap:4px;font-size:9.5px;font-weight:500;flex-wrap:wrap}
+.spectrumStages span{color:var(--muted);position:relative;cursor:default;white-space:nowrap}
+.spectrumStages span::after{content:"";position:absolute;left:50%;top:-8px;width:1px;height:6px;background:#2a3b78}
+.verdictGif{margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid #223059;background:#0f1736}
+.verdictGif img{display:block;transition:opacity .3s ease}
+.learningPrompt{margin-top:10px;padding:10px;background:#1a2332;border:1px solid #2a3b78;border-radius:8px}
+.learningLinks{display:flex;flex-direction:column;gap:6px}
+.learningLink{display:block;padding:6px 8px;background:#0f1736;border:1px solid #223059;border-radius:6px;text-decoration:none;color:var(--text);font-size:11px;transition:background .2s ease}
+.learningLink:hover{background:#223059;color:var(--accent)}
+.learningLink .linkTitle{font-weight:600;margin-bottom:2px}
+.learningLink .linkDesc{color:var(--muted);font-size:10px}
+.statsPanel.max{position:fixed;inset:8px 8px auto 8px;z-index:9999;width:320px;max-height:70vh;}
+.statsPanel.max pre{max-height:48vh}
 .bigEmoji{font-size:58px;line-height:1;display:flex;justify-content:center;align-items:center;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));animation:popIn .5s cubic-bezier(.25,1.4,.4,1)}
 @keyframes popIn{0%{transform:scale(.4) rotate(-10deg);opacity:0}60%{transform:scale(1.08) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0)} }
 .links{margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow:auto}

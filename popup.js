@@ -15,6 +15,17 @@ const els = {
   linksResults: document.getElementById("linksResults"),
   spectrumPointer: document.getElementById("spectrumPointer"),
   bigEmoji: document.getElementById("bigEmoji"),
+  statsBtn: document.getElementById("statsBtn"),
+  statsPanel: document.getElementById("statsPanel"),
+  closeStats: document.getElementById("closeStats"),
+  statsContent: document.getElementById("statsContent"),
+  maxStats: document.getElementById("maxStats"),
+  spectrumStages: document.getElementById("spectrumStages"),
+  verdictGif: document.getElementById("verdictGif"),
+  gifImage: document.getElementById("gifImage"),
+  learningPrompt: document.getElementById("learningPrompt"),
+  learningLinks: document.getElementById("learningLinks"),
+  timeSpent: document.getElementById("timeSpent"),
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -26,6 +37,26 @@ els.resetKey.addEventListener("click", () => {
 });
 if(els.analyzeLinks){
   els.analyzeLinks.addEventListener("click", onAnalyzeLinks);
+}
+if(els.statsBtn){
+  els.statsBtn.addEventListener('click', () => toggleStats(true));
+}
+if(els.closeStats){
+  els.closeStats.addEventListener('click', () => toggleStats(false));
+}
+if(els.maxStats){
+  els.maxStats.addEventListener('click', () => toggleMaxStats());
+}
+
+function toggleMaxStats(){
+  if(!els.statsPanel) return;
+  const isMax = els.statsPanel.classList.toggle('max');
+  els.maxStats.textContent = isMax ? 'minimize' : 'maximize';
+}
+
+function toggleStats(show){
+  if(!els.statsPanel) return;
+  els.statsPanel.style.display = show ? 'block' : 'none';
 }
 
 async function init(){
@@ -56,6 +87,9 @@ function showVerdict(){
   if(els.bigEmoji){
     els.bigEmoji.style.display = 'none';
   }
+  if(els.timeSpent){ els.timeSpent.textContent = 'Time on this page: --:--'; }
+  if(els.verdictGif){ els.verdictGif.style.display = 'none'; }
+  if(els.learningPrompt){ els.learningPrompt.style.display = 'none'; }
 }
 
 async function onSaveKey(){
@@ -146,6 +180,9 @@ async function runAnalysis(apiKey){
       temperature: 0.2
     };
 
+  // Save debug (without key) prior to call
+  window.__debug = { request: { ...body, messages: body.messages.map(m => ({...m, content: (m.content||'').slice(0,4000) })) } };
+
     const resp = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
       headers: {
@@ -214,19 +251,39 @@ async function runAnalysis(apiKey){
       els.bigEmoji.classList.add('anim');
     }
 
+    // Show verdict GIF
+    showVerdictGif(v);
+
     // Move spectrum pointer (0 brainrot, 0.5 uncertain, 1 valuable)
     if(els.spectrumPointer){
-      let pos;
-      if(v === 'brainrot') pos = 0.04;
-      else if(v === 'uncertain') pos = 0.5;
-      else if(v === 'valuable') pos = 0.96;
-      else pos = 0.5;
-      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(1)}% - 6px)`;
+      // Map verdict to expanded stage approximate positions
+      let posMap = {
+        brainrot: 0.05,
+        uncertain: 0.32, // leaning mid
+        valuable: 0.90
+      };
+      let pos = posMap[v] ?? 0.5;
+      // Slight confidence shift within local band
+      const conf = Math.max(0, Math.min(1, verdictObj.confidence||0));
+      if(v === 'brainrot') pos = 0.05 + conf * 0.07;          // 0.05 - 0.12
+      else if(v === 'uncertain') pos = 0.25 + conf * 0.20;    // 0.25 - 0.45
+      else if(v === 'valuable') pos = 0.75 + conf * 0.20;     // 0.75 - 0.95
+      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(2)}% - 6px)`;
+    }
+
+    // Store model raw response snippet
+    if(window.__debug){
+      window.__debug.response = {
+        raw: content.slice(0,6000),
+        parsed: verdictObj
+      };
+      updateStatsPanel();
     }
 
     // Cache page object for link analysis reuse
     window.__cachedPage = page;
     window.__cachedKey = apiKey;
+  startTimeUpdates(page.url);
 
   }catch(err){
     els.status.textContent = "Error";
@@ -329,4 +386,253 @@ function renderLinkVerdicts(items){
 
 function escapeHtml(str){
   return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+}
+
+function updateStatsPanel(){
+  if(!els.statsContent || !window.__debug) return;
+  try{
+    const safe = JSON.stringify(window.__debug, null, 2);
+    els.statsContent.textContent = safe;
+  }catch(e){
+    els.statsContent.textContent = 'Failed to serialize debug data.';
+  }
+}
+
+let timeInterval;
+function startTimeUpdates(url){
+  if(!els.timeSpent || !url) return;
+  if(timeInterval) clearInterval(timeInterval);
+  const refresh = async () => {
+    try{
+      const res = await chrome.runtime.sendMessage({ type: 'get_time', url });
+      if(!res) return;
+      const ms = res.totalMs || 0;
+      els.timeSpent.textContent = 'Time on this page: ' + formatDuration(ms);
+    }catch{}
+  };
+  refresh();
+  timeInterval = setInterval(refresh, 1000);
+}
+
+function formatDuration(ms){
+  const totalSec = Math.floor(ms/1000);
+  const h = Math.floor(totalSec/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = totalSec%60;
+  const base = h>0 ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
+  return base;
+}
+
+function showVerdictGif(verdict){
+  if(!els.verdictGif || !els.gifImage) return;
+  
+  // Use working GIF URLs (HTTPS Giphy/Tenor direct links)
+  const gifUrls = {
+    brainrot: [
+      'https://media.giphy.com/media/ZRUcenc6iO4CAVmO8i/giphy.gif', // Cat blep
+      'https://media.giphy.com/media/xT5LMzIK1AdZJ4cYW4/giphy.gif', // Brain loading
+      'https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif'  // Confused
+    ],
+    uncertain: [
+      'https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif', // Thinking
+      'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif', // Confused
+      'https://media.giphy.com/media/l3V0H7bYv5Ml5TOfu/giphy.gif'   // Shrug
+    ],
+    valuable: [
+      'https://media.giphy.com/media/CAYVZA5NRb529kKQUc/giphy.gif', // Gigachad
+      'https://media.giphy.com/media/d3mlE7uhX8KFgEmY/giphy.gif',   // Success
+      'https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif'   // Celebration
+    ]
+  };
+
+  const urls = gifUrls[verdict] || gifUrls.uncertain;
+  const randomUrl = urls[Math.floor(Math.random() * urls.length)];
+  
+  // Show custom animation for specific verdicts
+  if(verdict === 'valuable') {
+    showConfetti();
+  } else if(verdict === 'brainrot') {
+    showTouchGrassMessage();
+    showLearningPrompt();
+  }
+  
+  // Load GIF with better error handling
+  els.gifImage.onerror = () => {
+    console.log('GIF failed to load, using fallback');
+    createFallbackGif(verdict);
+  };
+  
+  els.gifImage.onload = () => {
+    console.log('GIF loaded successfully');
+  };
+  
+  els.gifImage.src = randomUrl;
+  els.verdictGif.style.display = 'block';
+}
+
+function createFallbackGif(verdict){
+  const messages = {
+    brainrot: '💀 brainrot detected',
+    uncertain: '🤔 mid energy',
+    valuable: '💡 peak content'
+  };
+  
+  els.gifImage.src = `data:image/svg+xml;base64,${btoa(`
+    <svg width="200" height="80" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#0f1736" stroke="#223059"/>
+      <text x="50%" y="50%" fill="#9aa3b2" text-anchor="middle" dy=".3em" font-family="sans-serif" font-size="14">
+        ${messages[verdict] || '🤔 mid energy'}
+      </text>
+    </svg>
+  `)}`;
+}
+
+function showConfetti(){
+  // Create confetti container
+  const confetti = document.createElement('div');
+  confetti.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10000;
+  `;
+  
+  // Create confetti pieces
+  for(let i = 0; i < 30; i++){
+    const piece = document.createElement('div');
+    piece.textContent = ['🎉','✨','🔥','💯','🚀'][Math.floor(Math.random() * 5)];
+    piece.style.cssText = `
+      position: absolute;
+      font-size: 16px;
+      left: ${Math.random() * 100}%;
+      animation: confettiFall ${2 + Math.random() * 2}s linear forwards;
+      animation-delay: ${Math.random() * 0.5}s;
+    `;
+    confetti.appendChild(piece);
+  }
+  
+  // Add CSS animation
+  if(!document.getElementById('confettiStyle')){
+    const style = document.createElement('style');
+    style.id = 'confettiStyle';
+    style.textContent = `
+      @keyframes confettiFall {
+        0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(300px) rotate(360deg); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  document.body.appendChild(confetti);
+  
+  // Clean up after animation
+  setTimeout(() => {
+    if(confetti.parentNode) confetti.parentNode.removeChild(confetti);
+  }, 4000);
+}
+
+function showTouchGrassMessage(){
+  // Create message overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 92, 92, 0.95);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-family: ui-sans-serif, system-ui;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    animation: touchGrassAnim 3s ease-in-out forwards;
+  `;
+  overlay.textContent = '🌱 Touch grass subu! 🌱';
+  
+  // Add CSS animation
+  if(!document.getElementById('touchGrassStyle')){
+    const style = document.createElement('style');
+    style.id = 'touchGrassStyle';
+    style.textContent = `
+      @keyframes touchGrassAnim {
+        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+        20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  document.body.appendChild(overlay);
+  
+  // Clean up after animation
+  setTimeout(() => {
+    if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
+  }, 3000);
+}
+
+function showLearningPrompt(){
+  if(!els.learningPrompt || !els.learningLinks) return;
+  
+  // Curated educational resources
+  const learningResources = [
+    {
+      title: "Khan Academy",
+      desc: "Free world-class education for anyone, anywhere",
+      url: "https://www.khanacademy.org/",
+      icon: "📚"
+    },
+    {
+      title: "Brilliant",
+      desc: "Interactive problem solving in math, science & CS",
+      url: "https://brilliant.org/",
+      icon: "🧠"
+    },
+    {
+      title: "Coursera",
+      desc: "Online courses from top universities",
+      url: "https://www.coursera.org/",
+      icon: "🎓"
+    },
+    {
+      title: "MIT OpenCourseWare",
+      desc: "Free MIT course materials for self-paced learning",
+      url: "https://ocw.mit.edu/",
+      icon: "🔬"
+    },
+    {
+      title: "TED-Ed",
+      desc: "Short educational videos on fascinating topics",
+      url: "https://ed.ted.com/",
+      icon: "💡"
+    }
+  ];
+  
+  // Pick 3 random resources
+  const selected = learningResources
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3);
+  
+  els.learningLinks.innerHTML = '';
+  selected.forEach(resource => {
+    const link = document.createElement('a');
+    link.className = 'learningLink';
+    link.href = resource.url;
+    link.target = '_blank';
+    link.innerHTML = `
+      <div class="linkTitle">${resource.icon} ${resource.title}</div>
+      <div class="linkDesc">${resource.desc}</div>
+    `;
+    els.learningLinks.appendChild(link);
+  });
+  
+  els.learningPrompt.style.display = 'block';
 }
