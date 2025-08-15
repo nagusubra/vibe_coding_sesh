@@ -3,6 +3,8 @@ const els = {
   setup: document.getElementById("setup"),
   verdictCard: document.getElementById("verdictCard"),
   linksCard: document.getElementById("linksCard"),
+  avoidBrainrotCard: document.getElementById("avoidBrainrotCard"),
+  avoidBrainrotLinks: document.getElementById("avoidBrainrotLinks"),
   apiKey: document.getElementById("apiKey"),
   saveKey: document.getElementById("saveKey"),
   keyStatus: document.getElementById("keyStatus"),
@@ -10,6 +12,7 @@ const els = {
   verdict: document.getElementById("verdict"),
   verdictLine: document.getElementById("verdictLine"),
   confidence: document.getElementById("confidence"),
+  confidenceValue: document.getElementById("confidenceValue"),
   reason: document.getElementById("reason"),
   resetKey: document.getElementById("resetKey"),
   analyzeLinks: document.getElementById("analyzeLinks"),
@@ -83,11 +86,13 @@ function showVerdict(){
   els.setup.style.display = "none";
   els.verdictCard.style.display = "block";
   if(els.linksCard) els.linksCard.style.display = "block";
+  if(els.avoidBrainrotCard) els.avoidBrainrotCard.style.display = "none";
   els.status.textContent = "Analyzing…";
   els.status.className = "status analyzing";
   if(els.verdictLine) els.verdictLine.style.display = "none";
   els.verdict.textContent = "";
   if(els.confidence) els.confidence.textContent = "";
+  if(els.confidenceValue) els.confidenceValue.textContent = "";
   els.reason.textContent = "";
   if(els.spectrum) els.spectrum.style.display = "none";
   if(els.timeSpent){ els.timeSpent.textContent = 'Time on this page: --:--'; }
@@ -236,6 +241,7 @@ async function runAnalysis(apiKey){
       els.status.textContent = "Received non-JSON content from model.";
       els.verdict.textContent = "";
       if(els.confidence) els.confidence.textContent = "";
+      if(els.confidenceValue) els.confidenceValue.textContent = "";
       els.reason.textContent = content || "(empty)";
       return;
     }
@@ -256,8 +262,8 @@ async function runAnalysis(apiKey){
       els.verdictLine.style.display = "flex";
     }
     els.verdict.textContent = `${emoji} ${v.charAt(0).toUpperCase() + v.slice(1)}`;
-    if(els.confidence) {
-      els.confidence.textContent = `${Math.round((verdictObj.confidence||0)*100)}%`;
+    if(els.confidenceValue) {
+      els.confidenceValue.textContent = `${Math.round((verdictObj.confidence||0)*100)}%`;
     }
     
     // Show spectrum
@@ -265,10 +271,25 @@ async function runAnalysis(apiKey){
       els.spectrum.style.display = "block";
     }
     
+    // Show brainrot avoidance if verdict is bad
+    if((v === 'brainrot' || v === 'doomscroll') && els.avoidBrainrotCard) {
+      showBrainrotAvoidance();
+    } else if(els.avoidBrainrotCard) {
+      els.avoidBrainrotCard.style.display = 'none';
+    }
+    
     els.reason.textContent = verdictObj.justification || "";
 
-    // Show verdict GIF
+    // Show verdict GIF and special effects
     showVerdictGif(v);
+    
+    // Add special effects based on verdict
+    if(v === 'valuable' || v === 'peak' || v === 'decent') {
+      showConfetti();
+    } else if(v === 'brainrot' || v === 'doomscroll') {
+      showWompWomp();
+      showTouchGrassMessage();
+    }
 
     // Move spectrum pointer and highlight matching stage
     if(els.spectrumPointer && els.spectrumStages){
@@ -292,7 +313,7 @@ async function runAnalysis(apiKey){
       else if(v === 'decent') pos = 0.60 + conf * 0.20;     
       else if(v === 'valuable' || v === 'peak') pos = 0.80 + conf * 0.15;     
       
-      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(2)}% - 8px)`;
+      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(2)}% - 10px)`;
       
       // Highlight matching spectrum stage
       els.spectrumStages.querySelectorAll('span').forEach(span => {
@@ -325,6 +346,7 @@ async function runAnalysis(apiKey){
     if(els.verdictLine) els.verdictLine.style.display = "none";
     els.verdict.textContent = "";
     if(els.confidence) els.confidence.textContent = "";
+    if(els.confidenceValue) els.confidenceValue.textContent = "";
     els.reason.textContent = String(err?.message || err);
   }
 }
@@ -484,14 +506,6 @@ function showVerdictGif(verdict){
 
   const urls = gifUrls[verdict] || gifUrls.uncertain;
   const randomUrl = urls[Math.floor(Math.random() * urls.length)];
-  
-  // Show custom animation for specific verdicts
-  if(verdict === 'valuable') {
-    showConfetti();
-  } else if(verdict === 'brainrot') {
-    showTouchGrassMessage();
-    showLearningPrompt();
-  }
   
   // Load GIF with better error handling
   els.gifImage.onerror = () => {
@@ -672,4 +686,115 @@ function showLearningPrompt(){
   });
   
   els.learningPrompt.style.display = 'block';
+}
+
+function showBrainrotAvoidance(){
+  if(!els.avoidBrainrotCard || !els.avoidBrainrotLinks) return;
+  
+  // Quality content alternatives
+  const qualityResources = [
+    {
+      title: "TED Talks",
+      desc: "Inspiring talks from amazing speakers",
+      url: "https://www.ted.com/talks",
+      icon: "🎤"
+    },
+    {
+      title: "National Geographic",
+      desc: "Explore our planet and beyond",
+      url: "https://www.nationalgeographic.com/",
+      icon: "🌍"
+    },
+    {
+      title: "BBC Nature",
+      desc: "Discover the wonders of the natural world",
+      url: "https://www.bbc.com/nature",
+      icon: "🦁"
+    },
+    {
+      title: "Kurzgesagt",
+      desc: "Science made simple and beautiful",
+      url: "https://www.youtube.com/@kurzgesagt",
+      icon: "🧬"
+    },
+    {
+      title: "The Guardian Science",
+      desc: "Latest discoveries and scientific insights",
+      url: "https://www.theguardian.com/science",
+      icon: "🔬"
+    },
+    {
+      title: "MIT Technology Review",
+      desc: "The latest in technology and innovation",
+      url: "https://www.technologyreview.com/",
+      icon: "⚡"
+    }
+  ];
+  
+  // Pick 3 random quality resources
+  const selected = qualityResources
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3);
+  
+  els.avoidBrainrotLinks.innerHTML = '';
+  selected.forEach(resource => {
+    const link = document.createElement('a');
+    link.className = 'learningLink';
+    link.href = resource.url;
+    link.target = '_blank';
+    link.innerHTML = `
+      <div class="linkTitle">${resource.icon} ${resource.title}</div>
+      <div class="linkDesc">${resource.desc}</div>
+    `;
+    els.avoidBrainrotLinks.appendChild(link);
+  });
+  
+  els.avoidBrainrotCard.style.display = 'block';
+}
+
+function showWompWomp(){
+  // Create womp womp overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30, 30, 30, 0.95);
+    color: #999;
+    padding: 20px 30px;
+    border-radius: 12px;
+    font-family: ui-sans-serif, system-ui;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    animation: wompWompAnim 2.5s ease-in-out forwards;
+    text-align: center;
+  `;
+  overlay.innerHTML = '📉<br>womp womp<br>💀';
+  
+  // Add CSS animation
+  if(!document.getElementById('wompWompStyle')){
+    const style = document.createElement('style');
+    style.id = 'wompWompStyle';
+    style.textContent = `
+      @keyframes wompWompAnim {
+        0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+        15% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        30% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
+        45% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+        70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  document.body.appendChild(overlay);
+  
+  // Clean up after animation
+  setTimeout(() => {
+    if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
+  }, 2500);
 }

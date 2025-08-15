@@ -28,27 +28,48 @@
       <div class="verdict-line" id="verdictLine" style="display:none;">
         <span>AI Verdict: </span>
         <span id="verdict" class="verdict"></span>
-        <span id="confidence" class="confidence"></span>
+        <span id="confidence" class="confidence"><span id="confidenceValue"></span> confidence</span>
       </div>
       <div class="spectrum" id="spectrum" aria-hidden="true">
         <div class="pointer" id="spectrumPointer" aria-label="Verdict spectrum pointer"></div>
       </div>
       <div class="spectrumStages" id="spectrumStages">
-        <span data-pos="0.05" data-verdict="brainrot">💀 brainrot</span>
-        <span data-pos="0.25" data-verdict="doomscroll">📉 doomscroll</span>
-        <span data-pos="0.45" data-verdict="meh">😐 meh</span>
-        <span data-pos="0.70" data-verdict="decent">👌 decent</span>
-        <span data-pos="0.95" data-verdict="peak">🚀 peak</span>
+        <span data-pos="0.05" data-verdict="brainrot">
+          <div class="stage-emoji">💀</div>
+          <div class="stage-text">brainrot</div>
+        </span>
+        <span data-pos="0.25" data-verdict="doomscroll">
+          <div class="stage-emoji">📉</div>
+          <div class="stage-text">doomscroll</div>
+        </span>
+        <span data-pos="0.45" data-verdict="meh">
+          <div class="stage-emoji">😐</div>
+          <div class="stage-text">meh</div>
+        </span>
+        <span data-pos="0.70" data-verdict="decent">
+          <div class="stage-emoji">👌</div>
+          <div class="stage-text">decent</div>
+        </span>
+        <span data-pos="0.95" data-verdict="peak">
+          <div class="stage-emoji">🚀</div>
+          <div class="stage-text">peak</div>
+        </span>
       </div>
       <div id="timeSpent" class="muted" style="font-size:11px;margin-top:8px;">Time on this page: --:--</div>
       <div id="verdictGif" class="verdictGif" style="display:none;">
-        <img id="gifImage" src="" alt="Verdict GIF" style="width:100%;height:150px;object-fit:cover;border-radius:8px;">
+        <img id="gifImage" src="" alt="Verdict GIF" style="width:100%;height:200px;object-fit:cover;border-radius:8px;">
       </div>
       <pre id="reason" class="reason"></pre>
       <div id="learningPrompt" class="learningPrompt" style="display:none;">
         <div class="h" style="font-size:12px;margin-bottom:6px;">🧠 Level up your brain instead!</div>
         <div id="learningLinks" class="learningLinks"></div>
       </div>
+    </section>
+
+    <section id="avoidBrainrotCard" class="card" style="display:none;">
+      <div class="h" style="color:#ff5c5c;">🧠 Escape the Brainrot!</div>
+      <div class="muted" style="font-size:12px;margin-bottom:8px;">Here are some quality alternatives to level up:</div>
+      <div id="avoidBrainrotLinks" class="learningLinks"></div>
     </section>
 
     <section id="linksCard" class="card" style="display:none;">

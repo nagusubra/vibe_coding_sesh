@@ -30,13 +30,18 @@ input:focus{outline:none;border-color:var(--accent)}
 @keyframes slideInUp{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 .reason{margin-top:12px;background:rgba(15,23,54,0.8);border:1px solid rgba(42,59,120,0.4);border-radius:10px;padding:12px;white-space:pre-wrap;max-height:120px;overflow:auto;font-size:13px;line-height:1.4;transition:var(--transition);opacity:0;animation:fadeIn 0.5s ease 0.2s forwards}
 @keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
-.spectrum{margin-top:16px;position:relative;height:20px;border-radius:10px;background:linear-gradient(90deg,var(--bad),#ffb347,#f4d35e,#9fdc7b,var(--ok));box-shadow:0 0 0 2px rgba(42,59,120,0.4),inset 0 0 8px rgba(0,0,0,.4);opacity:0;animation:scaleIn 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) 0.1s forwards}
-.pointer{position:absolute;top:-8px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:12px solid #fff;filter:drop-shadow(0 3px 6px rgba(0,0,0,.6));transition:left .5s cubic-bezier(.4,.8,.2,1);transform:translateX(-8px)}
+.spectrum{margin-top:16px;position:relative;height:24px;border-radius:12px;background:linear-gradient(90deg,var(--bad),#ffb347,#f4d35e,#9fdc7b,var(--ok));box-shadow:0 0 0 3px rgba(42,59,120,0.4),inset 0 0 10px rgba(0,0,0,.5);opacity:0;animation:scaleIn 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) 0.1s forwards}
+.pointer{position:absolute;top:-10px;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:14px solid #000;filter:drop-shadow(0 3px 6px rgba(0,0,0,.8));transition:left .6s cubic-bezier(.4,.8,.2,1);transform:translateX(-10px)}
 .spectrumLabels{display:none}
-.spectrumStages{margin-top:12px;display:flex;justify-content:space-between;gap:4px;font-size:12px;font-weight:600;flex-wrap:wrap;opacity:0;animation:fadeIn 0.4s ease 0.3s forwards}
-.spectrumStages span{color:var(--muted);position:relative;cursor:default;white-space:nowrap;transition:all 0.3s ease;padding:4px;border-radius:6px}
-.spectrumStages span::after{content:"";position:absolute;left:50%;top:-16px;width:2px;height:10px;background:rgba(42,59,120,0.6);transform:translateX(-1px)}
-.spectrumStages span.highlight{color:var(--text);font-size:14px;font-weight:700;background:rgba(122,162,255,0.1);border:1px solid rgba(122,162,255,0.3);transform:scale(1.1)}
+.spectrumStages{margin-top:16px;display:flex;justify-content:space-between;gap:6px;opacity:0;animation:fadeIn 0.4s ease 0.3s forwards}
+.spectrumStages span{color:var(--muted);position:relative;cursor:default;display:flex;flex-direction:column;align-items:center;transition:all 0.3s ease;padding:6px;border-radius:8px;min-width:50px}
+.spectrumStages span::after{content:"";position:absolute;left:50%;top:-20px;width:2px;height:12px;background:rgba(42,59,120,0.6);transform:translateX(-1px)}
+.stage-emoji{font-size:18px;line-height:1;margin-bottom:2px}
+.stage-text{font-size:10px;font-weight:600;text-align:center;white-space:nowrap}
+.spectrumStages span.highlight{color:var(--text);background:rgba(122,162,255,0.15);border:2px solid rgba(122,162,255,0.4);transform:scale(1.1)}
+.spectrumStages span.highlight .stage-emoji{font-size:22px;animation:bounce 0.6s ease}
+.spectrumStages span.highlight .stage-text{font-weight:700;font-size:11px}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .verdictGif{margin-top:12px;border-radius:var(--radius);overflow:hidden;border:1px solid rgba(42,59,120,0.4);background:rgba(15,23,54,0.8);box-shadow:0 2px 12px rgba(0,0,0,0.2);position:relative;opacity:0;animation:scaleIn 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) 0.3s forwards}
 .verdictGif::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(45deg,transparent 30%,rgba(122,162,255,0.05) 50%,transparent 70%);pointer-events:none}
 .verdictGif img{display:block;transition:opacity .3s ease;border-radius:calc(var(--radius) - 1px)}
