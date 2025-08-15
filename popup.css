@@ -222,15 +222,17 @@ input::placeholder{
   width:6px;
 }
 .reason::-webkit-scrollbar-track{
-  background:rgba(59,130,246,0.1);
-  border-radius:3px;
+  background:rgba(59,130,246,0.08);
+  border-radius:4px;
+  margin:2px;
 }
 .reason::-webkit-scrollbar-thumb{
-  background:rgba(59,130,246,0.3);
-  border-radius:3px;
+  background:linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.5));
+  border-radius:4px;
+  border:1px solid rgba(59,130,246,0.1);
 }
 .reason::-webkit-scrollbar-thumb:hover{
-  background:rgba(59,130,246,0.5);
+  background:linear-gradient(135deg, rgba(59,130,246,0.5), rgba(59,130,246,0.7));
 }
 .spectrum{
   margin-top:20px;
@@ -244,15 +246,20 @@ input::placeholder{
 }
 .pointer{
   position:absolute;
-  top:32px;
+  top:24px;
   width:0;
   height:0;
   border-left:12px solid transparent;
   border-right:12px solid transparent;
   border-top:16px solid #000;
-  filter:drop-shadow(0 4px 8px rgba(0,0,0,.8));
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.8)) drop-shadow(0 0 12px rgba(0,0,0,.6));
   transition:left .8s cubic-bezier(.25,.8,.25,1);
   transform:translateX(-12px);
+  animation:pointerGlow 2s ease-in-out infinite alternate;
+}
+@keyframes pointerGlow{
+  0%{filter:drop-shadow(0 4px 8px rgba(0,0,0,.8)) drop-shadow(0 0 12px rgba(0,0,0,.6))}
+  100%{filter:drop-shadow(0 4px 8px rgba(0,0,0,.8)) drop-shadow(0 0 18px rgba(0,0,0,.8)) drop-shadow(0 0 6px rgba(255,255,255,.3))}
 }
 .spectrumLabels{display:none}
 .spectrumStages{
@@ -403,16 +410,27 @@ input::placeholder{
   height:8px;
 }
 ::-webkit-scrollbar-track{
-  background:rgba(59,130,246,0.1);
-  border-radius:4px;
+  background:rgba(59,130,246,0.08);
+  border-radius:6px;
+  margin:4px;
 }
 ::-webkit-scrollbar-thumb{
-  background:rgba(59,130,246,0.3);
-  border-radius:4px;
+  background:linear-gradient(135deg, rgba(59,130,246,0.4), rgba(59,130,246,0.6));
+  border-radius:6px;
   transition:var(--transition);
+  border:1px solid rgba(59,130,246,0.2);
+  box-shadow:0 2px 4px rgba(59,130,246,0.1);
 }
 ::-webkit-scrollbar-thumb:hover{
-  background:rgba(59,130,246,0.5);
+  background:linear-gradient(135deg, rgba(59,130,246,0.6), rgba(59,130,246,0.8));
+  box-shadow:0 4px 8px rgba(59,130,246,0.2);
+  transform:scale(1.02);
+}
+::-webkit-scrollbar-thumb:active{
+  background:linear-gradient(135deg, rgba(59,130,246,0.7), rgba(59,130,246,0.9));
+}
+::-webkit-scrollbar-corner{
+  background:rgba(59,130,246,0.05);
 }
 
 /* Loading state improvements */
