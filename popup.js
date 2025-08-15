@@ -12,7 +12,6 @@ const els = {
   verdict: document.getElementById("verdict"),
   verdictLine: document.getElementById("verdictLine"),
   confidence: document.getElementById("confidence"),
-  confidenceValue: document.getElementById("confidenceValue"),
   reason: document.getElementById("reason"),
   resetKey: document.getElementById("resetKey"),
   analyzeLinks: document.getElementById("analyzeLinks"),
@@ -92,7 +91,6 @@ function showVerdict(){
   if(els.verdictLine) els.verdictLine.style.display = "none";
   els.verdict.textContent = "";
   if(els.confidence) els.confidence.textContent = "";
-  if(els.confidenceValue) els.confidenceValue.textContent = "";
   els.reason.textContent = "";
   if(els.spectrum) els.spectrum.style.display = "none";
   if(els.timeSpent){ els.timeSpent.textContent = 'Time on this page: --:--'; }
@@ -241,7 +239,6 @@ async function runAnalysis(apiKey){
       els.status.textContent = "Received non-JSON content from model.";
       els.verdict.textContent = "";
       if(els.confidence) els.confidence.textContent = "";
-      if(els.confidenceValue) els.confidenceValue.textContent = "";
       els.reason.textContent = content || "(empty)";
       return;
     }
@@ -262,8 +259,8 @@ async function runAnalysis(apiKey){
       els.verdictLine.style.display = "flex";
     }
     els.verdict.textContent = `${emoji} ${v.charAt(0).toUpperCase() + v.slice(1)}`;
-    if(els.confidenceValue) {
-      els.confidenceValue.textContent = `${Math.round((verdictObj.confidence||0)*100)}%`;
+    if(els.confidence) {
+      els.confidence.textContent = `${Math.round((verdictObj.confidence||0)*100)}% confidence`;
     }
     
     // Show spectrum
@@ -313,7 +310,7 @@ async function runAnalysis(apiKey){
       else if(v === 'decent') pos = 0.60 + conf * 0.20;     
       else if(v === 'valuable' || v === 'peak') pos = 0.80 + conf * 0.15;     
       
-      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(2)}% - 10px)`;
+      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(2)}% - 12px)`;
       
       // Highlight matching spectrum stage
       els.spectrumStages.querySelectorAll('span').forEach(span => {
@@ -346,7 +343,6 @@ async function runAnalysis(apiKey){
     if(els.verdictLine) els.verdictLine.style.display = "none";
     els.verdict.textContent = "";
     if(els.confidence) els.confidence.textContent = "";
-    if(els.confidenceValue) els.confidenceValue.textContent = "";
     els.reason.textContent = String(err?.message || err);
   }
 }
