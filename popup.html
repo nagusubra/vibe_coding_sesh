@@ -25,9 +25,18 @@
 
     <section id="verdictCard" class="card" style="display:none;">
       <div class="h">AI Verdict</div>
+  <div id="bigEmoji" class="bigEmoji" aria-hidden="true" style="display:none;">🔎</div>
       <div id="status" class="status">Analyzing…</div>
       <div id="verdict" class="verdict"></div>
       <pre id="reason" class="reason"></pre>
+      <div class="spectrum" id="spectrum" aria-hidden="true">
+        <div class="pointer" id="spectrumPointer" aria-label="Verdict spectrum pointer"></div>
+      </div>
+      <div class="spectrumLabels">
+        <span>💤 Brainrot</span>
+        <span>🤔 Uncertain</span>
+        <span>💡 Valuable</span>
+      </div>
     </section>
 
     <section id="linksCard" class="card" style="display:none;">

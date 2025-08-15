@@ -16,6 +16,11 @@ input{margin-top:6px;border-radius:10px;border:1px solid #2a3b78;padding:10px;wi
 .verdict.ok{color:var(--ok)}
 .verdict.bad{color:var(--bad)}
 .reason{margin-top:8px;background:#0f1736;border:1px dashed #2a3b78;border-radius:10px;padding:8px;white-space:pre-wrap;max-height:160px;overflow:auto}
+.spectrum{margin-top:10px;position:relative;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--bad),#ffb347,#f4d35e,#9fdc7b,var(--ok));box-shadow:0 0 0 1px #223059,inset 0 0 4px rgba(0,0,0,.4)}
+.pointer{position:absolute;top:-5px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid #fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));transition:left .35s cubic-bezier(.4,.8,.2,1)}
+.spectrumLabels{margin-top:6px;display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.bigEmoji{font-size:58px;line-height:1;display:flex;justify-content:center;align-items:center;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));animation:popIn .5s cubic-bezier(.25,1.4,.4,1)}
+@keyframes popIn{0%{transform:scale(.4) rotate(-10deg);opacity:0}60%{transform:scale(1.08) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0)} }
 .links{margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow:auto}
 .linkRow{display:flex;flex-direction:column;padding:6px 8px;border:1px solid #223059;border-radius:8px;background:#0f1736}
 .linkRowHeader{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px}

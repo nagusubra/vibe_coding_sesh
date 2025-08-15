@@ -13,6 +13,8 @@ const els = {
   analyzeLinks: document.getElementById("analyzeLinks"),
   linksStatus: document.getElementById("linksStatus"),
   linksResults: document.getElementById("linksResults"),
+  spectrumPointer: document.getElementById("spectrumPointer"),
+  bigEmoji: document.getElementById("bigEmoji"),
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -51,6 +53,9 @@ function showVerdict(){
   els.status.textContent = "Analyzing…";
   els.verdict.textContent = "";
   els.reason.textContent = "";
+  if(els.bigEmoji){
+    els.bigEmoji.style.display = 'none';
+  }
 }
 
 async function onSaveKey(){
@@ -195,9 +200,29 @@ async function runAnalysis(apiKey){
     els.verdict.classList.remove("ok","bad");
     if(v === "valuable") els.verdict.classList.add("ok");
     if(v === "brainrot") els.verdict.classList.add("bad");
-    els.status.textContent = `Verdict: ${v} • Confidence: ${Math.round((verdictObj.confidence||0)*100)}%`;
-    els.verdict.textContent = page.title || page.url || "";
+    const emoji = v === 'valuable' ? '💡' : v === 'brainrot' ? '�' : '🤔';
+    els.status.textContent = `${emoji} Verdict: ${v} • Confidence: ${Math.round((verdictObj.confidence||0)*100)}%`;
+    els.verdict.textContent = `${emoji} ${page.title || page.url || ''}`;
     els.reason.textContent = verdictObj.justification || "";
+
+    if(els.bigEmoji){
+      els.bigEmoji.textContent = emoji;
+      els.bigEmoji.style.display = 'flex';
+      // retrigger animation
+      els.bigEmoji.classList.remove('anim');
+      void els.bigEmoji.offsetWidth;
+      els.bigEmoji.classList.add('anim');
+    }
+
+    // Move spectrum pointer (0 brainrot, 0.5 uncertain, 1 valuable)
+    if(els.spectrumPointer){
+      let pos;
+      if(v === 'brainrot') pos = 0.04;
+      else if(v === 'uncertain') pos = 0.5;
+      else if(v === 'valuable') pos = 0.96;
+      else pos = 0.5;
+      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(1)}% - 6px)`;
+    }
 
     // Cache page object for link analysis reuse
     window.__cachedPage = page;
@@ -289,10 +314,11 @@ function renderLinkVerdicts(items){
   items.forEach(item => {
     const div = document.createElement('div');
     div.className = 'linkRow';
-    const badgeClass = item.verdict === 'valuable' ? 'ok' : item.verdict === 'brainrot' ? 'bad' : 'uncertain';
+  const badgeClass = item.verdict === 'valuable' ? 'ok' : item.verdict === 'brainrot' ? 'bad' : 'uncertain';
+  const emoji = item.verdict === 'valuable' ? '💡' : item.verdict === 'brainrot' ? '�' : '🤔';
     div.innerHTML = `
       <div class="linkRowHeader">
-        <span class="badge ${badgeClass}">${item.verdict||'?'}</span>
+    <span class="badge ${badgeClass}">${emoji} ${item.verdict||'?'};</span>
         <span style="flex:1;text-align:right;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(item.url||'')}</span>
       </div>
       <div class="linkJust">${escapeHtml(item.justification||'')}</div>
