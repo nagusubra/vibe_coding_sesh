@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; connect-src https://api.perplexity.ai;">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Content Value AI Rater</title>
+  <title>RotCheck</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
   <div class="container">
     <header class="header">
-  <div class="title">Brainrot Radar</div>
+  <div class="title">RotCheck</div>
       <button id="resetKey" class="link">Change API Key</button>
     </header>
 
@@ -24,27 +24,27 @@
     </section>
 
     <section id="verdictCard" class="card" style="display:none;">
-      <div class="h">AI Verdict</div>
-  <div id="bigEmoji" class="bigEmoji" aria-hidden="true" style="display:none;">🔎</div>
       <div id="status" class="status">Analyzing…</div>
-      <div id="verdict" class="verdict"></div>
-  <div id="timeSpent" class="muted" style="font-size:11px;margin-top:4px;">Time on this page: --:--</div>
-      <pre id="reason" class="reason"></pre>
+      <div class="verdict-line" id="verdictLine" style="display:none;">
+        <span>AI Verdict: </span>
+        <span id="verdict" class="verdict"></span>
+        <span id="confidence" class="confidence"></span>
+      </div>
       <div class="spectrum" id="spectrum" aria-hidden="true">
         <div class="pointer" id="spectrumPointer" aria-label="Verdict spectrum pointer"></div>
       </div>
       <div class="spectrumStages" id="spectrumStages">
-        <span data-pos="0.05">� brainrot</span>
-        <span data-pos="0.18">📉 doomscroll</span>
-        <span data-pos="0.32">😐 meh</span>
-        <span data-pos="0.50">🫥 mid</span>
-        <span data-pos="0.66">👌 decent</span>
-        <span data-pos="0.82">💡 useful</span>
-        <span data-pos="0.95">🚀 peak</span>
+        <span data-pos="0.05" data-verdict="brainrot">💀 brainrot</span>
+        <span data-pos="0.25" data-verdict="doomscroll">📉 doomscroll</span>
+        <span data-pos="0.45" data-verdict="meh">😐 meh</span>
+        <span data-pos="0.70" data-verdict="decent">👌 decent</span>
+        <span data-pos="0.95" data-verdict="peak">🚀 peak</span>
       </div>
+      <div id="timeSpent" class="muted" style="font-size:11px;margin-top:8px;">Time on this page: --:--</div>
       <div id="verdictGif" class="verdictGif" style="display:none;">
-        <img id="gifImage" src="" alt="Verdict GIF" style="width:100%;height:80px;object-fit:cover;border-radius:8px;">
+        <img id="gifImage" src="" alt="Verdict GIF" style="width:100%;height:150px;object-fit:cover;border-radius:8px;">
       </div>
+      <pre id="reason" class="reason"></pre>
       <div id="learningPrompt" class="learningPrompt" style="display:none;">
         <div class="h" style="font-size:12px;margin-bottom:6px;">🧠 Level up your brain instead!</div>
         <div id="learningLinks" class="learningLinks"></div>
@@ -61,7 +61,7 @@
     </section>
 
     <footer class="footer muted">
-  Brainrot Radar v1.0 • Perplexity Sonar
+  RotCheck v1.0 • Perplexity Sonar
       <div style="margin-top:6px;">
         <button id="statsBtn" class="link smallLink" type="button">stats for nerds</button>
       </div>

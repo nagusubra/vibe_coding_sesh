@@ -8,13 +8,15 @@ const els = {
   keyStatus: document.getElementById("keyStatus"),
   status: document.getElementById("status"),
   verdict: document.getElementById("verdict"),
+  verdictLine: document.getElementById("verdictLine"),
+  confidence: document.getElementById("confidence"),
   reason: document.getElementById("reason"),
   resetKey: document.getElementById("resetKey"),
   analyzeLinks: document.getElementById("analyzeLinks"),
   linksStatus: document.getElementById("linksStatus"),
   linksResults: document.getElementById("linksResults"),
   spectrumPointer: document.getElementById("spectrumPointer"),
-  bigEmoji: document.getElementById("bigEmoji"),
+  spectrum: document.getElementById("spectrum"),
   statsBtn: document.getElementById("statsBtn"),
   statsPanel: document.getElementById("statsPanel"),
   closeStats: document.getElementById("closeStats"),
@@ -82,14 +84,19 @@ function showVerdict(){
   els.verdictCard.style.display = "block";
   if(els.linksCard) els.linksCard.style.display = "block";
   els.status.textContent = "Analyzing…";
+  els.status.className = "status analyzing";
+  if(els.verdictLine) els.verdictLine.style.display = "none";
   els.verdict.textContent = "";
+  if(els.confidence) els.confidence.textContent = "";
   els.reason.textContent = "";
-  if(els.bigEmoji){
-    els.bigEmoji.style.display = 'none';
-  }
+  if(els.spectrum) els.spectrum.style.display = "none";
   if(els.timeSpent){ els.timeSpent.textContent = 'Time on this page: --:--'; }
   if(els.verdictGif){ els.verdictGif.style.display = 'none'; }
   if(els.learningPrompt){ els.learningPrompt.style.display = 'none'; }
+  // Clear any highlight classes
+  if(els.spectrumStages) {
+    els.spectrumStages.querySelectorAll('span').forEach(span => span.classList.remove('highlight'));
+  }
 }
 
 async function onSaveKey(){
@@ -228,6 +235,7 @@ async function runAnalysis(apiKey){
       // If model didn't honor schema, show raw content
       els.status.textContent = "Received non-JSON content from model.";
       els.verdict.textContent = "";
+      if(els.confidence) els.confidence.textContent = "";
       els.reason.textContent = content || "(empty)";
       return;
     }
@@ -237,38 +245,65 @@ async function runAnalysis(apiKey){
     els.verdict.classList.remove("ok","bad");
     if(v === "valuable") els.verdict.classList.add("ok");
     if(v === "brainrot") els.verdict.classList.add("bad");
-    const emoji = v === 'valuable' ? '💡' : v === 'brainrot' ? '�' : '🤔';
-    els.status.textContent = `${emoji} Verdict: ${v} • Confidence: ${Math.round((verdictObj.confidence||0)*100)}%`;
-    els.verdict.textContent = `${emoji} ${page.title || page.url || ''}`;
-    els.reason.textContent = verdictObj.justification || "";
-
-    if(els.bigEmoji){
-      els.bigEmoji.textContent = emoji;
-      els.bigEmoji.style.display = 'flex';
-      // retrigger animation
-      els.bigEmoji.classList.remove('anim');
-      void els.bigEmoji.offsetWidth;
-      els.bigEmoji.classList.add('anim');
+    const emoji = v === 'valuable' ? '💡' : v === 'brainrot' ? '💀' : '🤔';
+    
+    // Update status to just show analyzing completed
+    els.status.textContent = "Analysis complete";
+    els.status.className = "status";
+    
+    // Display verdict line with all info
+    if(els.verdictLine) {
+      els.verdictLine.style.display = "flex";
     }
+    els.verdict.textContent = `${emoji} ${v.charAt(0).toUpperCase() + v.slice(1)}`;
+    if(els.confidence) {
+      els.confidence.textContent = `${Math.round((verdictObj.confidence||0)*100)}%`;
+    }
+    
+    // Show spectrum
+    if(els.spectrum) {
+      els.spectrum.style.display = "block";
+    }
+    
+    els.reason.textContent = verdictObj.justification || "";
 
     // Show verdict GIF
     showVerdictGif(v);
 
-    // Move spectrum pointer (0 brainrot, 0.5 uncertain, 1 valuable)
-    if(els.spectrumPointer){
-      // Map verdict to expanded stage approximate positions
+    // Move spectrum pointer and highlight matching stage
+    if(els.spectrumPointer && els.spectrumStages){
+      // Map verdict to new stage positions
       let posMap = {
         brainrot: 0.05,
-        uncertain: 0.32, // leaning mid
-        valuable: 0.90
+        doomscroll: 0.25, 
+        uncertain: 0.45, // map to meh
+        meh: 0.45,
+        decent: 0.70,
+        valuable: 0.95, // map to peak
+        peak: 0.95
       };
-      let pos = posMap[v] ?? 0.5;
-      // Slight confidence shift within local band
+      let pos = posMap[v] ?? 0.45;
+      
+      // Adjust position slightly based on confidence
       const conf = Math.max(0, Math.min(1, verdictObj.confidence||0));
-      if(v === 'brainrot') pos = 0.05 + conf * 0.07;          // 0.05 - 0.12
-      else if(v === 'uncertain') pos = 0.25 + conf * 0.20;    // 0.25 - 0.45
-      else if(v === 'valuable') pos = 0.75 + conf * 0.20;     // 0.75 - 0.95
-      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(2)}% - 6px)`;
+      if(v === 'brainrot') pos = 0.05 + conf * 0.15;          
+      else if(v === 'doomscroll') pos = 0.25 + conf * 0.15;    
+      else if(v === 'uncertain' || v === 'meh') pos = 0.35 + conf * 0.20;    
+      else if(v === 'decent') pos = 0.60 + conf * 0.20;     
+      else if(v === 'valuable' || v === 'peak') pos = 0.80 + conf * 0.15;     
+      
+      els.spectrumPointer.style.left = `calc(${(pos*100).toFixed(2)}% - 8px)`;
+      
+      // Highlight matching spectrum stage
+      els.spectrumStages.querySelectorAll('span').forEach(span => {
+        span.classList.remove('highlight');
+        const spanVerdict = span.getAttribute('data-verdict');
+        if(spanVerdict === v || 
+           (v === 'valuable' && spanVerdict === 'peak') ||
+           (v === 'uncertain' && spanVerdict === 'meh')) {
+          span.classList.add('highlight');
+        }
+      });
     }
 
     // Store model raw response snippet
@@ -287,7 +322,9 @@ async function runAnalysis(apiKey){
 
   }catch(err){
     els.status.textContent = "Error";
+    if(els.verdictLine) els.verdictLine.style.display = "none";
     els.verdict.textContent = "";
+    if(els.confidence) els.confidence.textContent = "";
     els.reason.textContent = String(err?.message || err);
   }
 }
@@ -371,13 +408,13 @@ function renderLinkVerdicts(items){
   items.forEach(item => {
     const div = document.createElement('div');
     div.className = 'linkRow';
-  const badgeClass = item.verdict === 'valuable' ? 'ok' : item.verdict === 'brainrot' ? 'bad' : 'uncertain';
-  const emoji = item.verdict === 'valuable' ? '💡' : item.verdict === 'brainrot' ? '�' : '🤔';
+    const badgeClass = item.verdict === 'valuable' ? 'ok' : item.verdict === 'brainrot' ? 'bad' : 'uncertain';
+    const emoji = item.verdict === 'valuable' ? '💡' : item.verdict === 'brainrot' ? '💀' : '🤔';
     div.innerHTML = `
-      <div class="linkRowHeader">
-    <span class="badge ${badgeClass}">${emoji} ${item.verdict||'?'};</span>
-        <span style="flex:1;text-align:right;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(item.url||'')}</span>
+      <div class="linkVerdict">
+        <span class="badge ${badgeClass}">${emoji} ${item.verdict||'?'}</span>
       </div>
+      <div class="linkUrl">${escapeHtml(item.url||'')}</div>
       <div class="linkJust">${escapeHtml(item.justification||'')}</div>
     `;
     els.linksResults.appendChild(div);

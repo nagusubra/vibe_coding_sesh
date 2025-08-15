@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Brainrot Radar",
+  "name": "RotCheck",
   "version": "1.0.0",
   "description": "Instant AI verdict (valuable vs brainrot) for pages & outbound links using Perplexity Sonar.",
   "icons": {
@@ -23,7 +23,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Brainrot Radar"
+    "default_title": "RotCheck"
   },
   "background": {
     "service_worker": "background.js"
